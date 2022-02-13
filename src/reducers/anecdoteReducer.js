@@ -17,6 +17,7 @@ const asObject = (anecdote) => {
   };
 };
 
+// action creators
 export const vote = (id) => {
   return {
     type: "ADD_VOTE",
@@ -24,6 +25,7 @@ export const vote = (id) => {
   };
 };
 
+// action creators
 export const createAnecdote = (content) => {
   return {
     type: "NEW_ANECDOTE",
