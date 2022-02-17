@@ -25,11 +25,19 @@ const Anecdote = ({ anecdote }) => {
 };
 
 const AnecdoteList = () => {
-  const anecdotes = useSelector((state) => state.anecdoteReducer);
+  const anecdotes = useSelector(({ filter, anecdotes }) => {
+    if (filter === null) {
+      return anecdotes;
+    }
+    const regex = new RegExp(filter, "i");
+    return anecdotes.filter((anecdote) => anecdote.content.match(regex));
+  });
 
   const sortByVotes = (a1, a2) => {
     return a2.votes - a1.votes;
   };
+
+  console.log(anecdotes);
 
   return [...anecdotes]
     .sort(sortByVotes)
