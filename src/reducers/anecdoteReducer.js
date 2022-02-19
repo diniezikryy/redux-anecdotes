@@ -1,4 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
+import anecdoteService from "../services/anecdotes";
 
 const anecdotesAtStart = [
   "If it hurts, do it more often",
@@ -9,26 +10,10 @@ const anecdotesAtStart = [
   "Debugging is twice as hard as writing the code in the first place. Therefore, if you write the code as cleverly as possible, you are, by definition, not smart enough to debug it.",
 ];
 
-const getId = () => (100000 * Math.random()).toFixed(0);
-
-const asObject = (anecdote) => {
-  return {
-    content: anecdote,
-    id: getId(),
-    votes: 0,
-  };
-};
-
-const initialState = anecdotesAtStart.map(asObject);
-
 const anecdoteSlice = createSlice({
   name: "anecdotes",
   initialState: [],
   reducers: {
-    createAnecdote(state, action) {
-      const content = action.payload;
-      state.push(action.payload);
-    },
     vote(state, action) {
       const id = action.payload;
       const anecdoteToChange = state.find((anecdote) => anecdote.id === id);
@@ -50,10 +35,30 @@ const anecdoteSlice = createSlice({
   },
 });
 
-export const {
-  createAnecdote,
-  vote,
-  appendAnecdote,
-  setAnecdotes,
-} = anecdoteSlice.actions;
+export const { vote, appendAnecdote, setAnecdotes } = anecdoteSlice.actions;
+
+export const initializeAnecdotes = () => {
+  return async (dispatch) => {
+    const anecdotes = await anecdoteService.getAll();
+    dispatch(setAnecdotes(anecdotes));
+  };
+};
+
+export const createAnecdote = (content) => {
+  return async (dispatch) => {
+    const newAnecdote = await anecdoteService.createNewAnecdote(content);
+    dispatch(appendAnecdote(newAnecdote));
+  };
+};
+
+export const upvoteAnecdote = (objectToUpdate) => {
+  return async (dispatch) => {
+    const anecdoteToUpdate = await anecdoteService.updateAnecdote({
+      ...objectToUpdate,
+      votes: objectToUpdate.votes + 1,
+    });
+    dispatch(vote(anecdoteToUpdate.id)); // passes the id to the payload
+  };
+};
+
 export default anecdoteSlice.reducer;
